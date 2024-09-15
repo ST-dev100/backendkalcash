@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// prisma/schema.prisma
+model User {
+  id           String   @id @default(uuid())  // UUID primary key
+  fullName     String   // Full name of the user
+  email        String   @unique  // Unique email
+  birthdate    DateTime?  // User's birth date
+  gender       Gender?    // Gender of the user
+  location     String?    // Location of the user
+  password     String?    // Hashed password
+  googleId     String?   @unique  // Optional Google ID for social login
+  role         String    // User Roles
+  profileImage String?   // Optional profile picture URL or path
+  activate     Boolean   @default(false)  // Activation status, default false
+  secretToken  String?    // Secret token for account activation or security purposes
+  enable2FA    Boolean   @default(false)  // Two-factor authentication enabled, default false
+  createdAt    DateTime  @default(now())  // Automatically set creation timestamp
+  updatedAt    DateTime  @updatedAt  // Automatically update timestamp on change
+  account      Account?  // One-to-one relationship with Account model
+}
+
+
+model Account {
+  id            String   @id @default(uuid())  // UUID primary key for Account
+  userId        String   @unique  // One-to-one relationship with User
+  coin          Int      // Number of coins the user has
+  deposit       Float    // User's deposit
+  accountStatus String    // Account status (active, inactive, etc.)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Specify relation field
+  createdAt     DateTime @default(now())  // Automatically set creation timestamp
+  updatedAt     DateTime @updatedAt  // Automatically update timestamp on change
+}
+
+enum Gender {
+  male
+  female
+}
